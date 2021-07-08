@@ -1,5 +1,4 @@
 from django.db import models
-import hashlib
 
 # Create your models here.
 class User(models.Model):
@@ -17,7 +16,6 @@ class Room(models.Model):
 
     name = models.CharField(max_length=100)
     private = models.BooleanField(default=False)
-    super_users = (User)
     users = models.ManyToManyField(User)
 
 
