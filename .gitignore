@@ -1,3 +1,5 @@
 .idea/workspace.xml
 
 .idea/vcs.xml
+
+users_app/__pycache__/
