@@ -3,7 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from users_app.models import User
+from users_app.models import User, Room
 
 class UserAPI(APIView):
 
@@ -79,19 +79,84 @@ class UserAPI(APIView):
         return Response({"success": True, "message": "User information updated"})
 
 
+
 class RoomAPI(APIView):
 
     def post(self, request):
-        pass
+        room = Room(name=request.data["room_name"], private=request.data["private"])
+        room.save()
+        res = {"success": True, "room_id": room.id}
+        return Response(res)
+
 
     def get(self, request):
-        pass
+
+        room_id = request.query_params.get("room_id")
+        room_name = request.query_params.get("room_name")
+        lst_rooms = []
+
+        if room_id == None and room_name == None:
+            rooms_from_db = Room.objects.all()
+            for r in rooms_from_db:
+                lst_rooms.append({"id": r.id, "room_name": r.name, "private": r.private})
+
+        elif room_id != None:
+            rooms_from_db = Room.objects.filter(pk=room_id)
+            for r in rooms_from_db:
+                lst_rooms.append({"id": r.id, "room_name": r.name, "private": r.private})
+
+        elif room_name != None:
+            rooms_from_db = Room.objects.filter(name=room_name)
+            for r in rooms_from_db:
+                lst_rooms.append({"id": r.id, "room_name": r.name, "private": r.private})
+
+        else:
+            return Response({"success": False, "message": "Bad request"})
+
+        return Response({"success": True, "rooms": lst_rooms})
+
 
     def delete(self, request):
-        pass
+        room_id = request.data["room_id"]
+
+        if room_id == None:
+            return Response({"success": False, "message": "No room_id in request"})
+
+        try:
+            room = Room.objects.filter(id=room_id).get()
+            room.delete()
+
+        except:
+            return Response({"success": False, "message": "Room not found!"})
+
+        return Response({"success": True, "message": "Room is successfully deleted"})
+
 
     def put(self, request):
-        pass
+        room_id = request.data["room_id"]
+        room_name = request.data["room_name"]
+        private = request.data["private"]
+
+        if room_id == None:
+            return Response({"success": False, "message": "No room_id in request"})
+
+        try:
+            room = Room.objects.filter(id=room_id).get()
+
+            if room_name != None:
+                room.name = room_name;
+
+            if private != None:
+                room.private = private
+
+            room.save()
+
+        except:
+            return Response({"success": False, "message": "Something went wrong!"})
+
+        return Response({"success": True, "message": "Room information updated"})
+
+
 
 class SuperUsersAPI(APIView):
 
