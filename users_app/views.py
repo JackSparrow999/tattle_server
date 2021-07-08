@@ -39,6 +39,7 @@ class UserAPI(APIView):
 
         return Response({"success": True, "users": lst_users})
 
+
     def delete(self, request):
         user_id = request.data["user_id"]
 
@@ -116,6 +117,7 @@ class RoomAPI(APIView):
         return Response({"success": True, "rooms": lst_rooms})
 
 
+
     def delete(self, request):
         room_id = request.data["room_id"]
 
@@ -157,32 +159,110 @@ class RoomAPI(APIView):
         return Response({"success": True, "message": "Room information updated"})
 
 
-
-class SuperUsersAPI(APIView):
-
-    def post(self, request):
-        pass
-
-    def get(self, request):
-        pass
-
-    def delete(self, request):
-        pass
-
-    def put(self, request):
-        pass
-
-
 class AddUsersToRoomAPI(APIView):
 
     def post(self, request):
-        pass
+        user_id = request.data["user_id"]
+        room_id = request.data["room_id"]
+
+        if user_id == None or room_id == None:
+            return Response({"success": False, "message": "Invalid request!"})
+
+        try:
+            user = User.objects.filter(id = user_id).get()
+        except:
+            return Response({"success": False, "message": "User doesn't exist!"})
+
+        try:
+            room = Room.objects.filter(id = room_id).get()
+        except:
+            return Response({"success": False, "message": "Room doesn't exist!"})
+
+        try:
+            existing_user = room.users.all().filter(id=user_id).get()
+        except:
+            existing_user = None
+
+        if existing_user != None:
+            return Response({"success": True, "message": "User is already added to room!"})
+
+        room.users.add(user)
+
+        return Response({"success": True, "message": "User added to room"})
+
 
     def get(self, request):
-        pass
+        user_id = request.query_params.get("user_id")
+        room_id = request.query_params.get("room_id")
+        user = None
+        room = None
+
+        if user_id == None and room_id == None:
+            return Response({"success": False, "message": "Invalid request!"})
+
+        if user_id != None:
+            try:
+                user = User.objects.filter(id = user_id).get()
+            except:
+                return Response({"success": False, "message": "User doesn't exist!"})
+
+        if room_id != None:
+            try:
+                room = Room.objects.filter(id = room_id).get()
+            except:
+                return Response({"success": False, "message": "Room doesn't exist!"})
+
+
+        if user_id != None and room_id == None:
+            ls_rooms = []
+            rooms = User.objects.filter(id = user_id).get().room_set.all()
+            for r in rooms:
+                ls_rooms.append({"room_id": r.id, "room_name": r.name, "private": r.private})
+
+            return Response({"success": True, "rooms": ls_rooms})
+
+        if room_id != None and user_id == None:
+            ls_users = []
+            users = Room.objects.filter(id = room_id).get().users.all()
+
+            print(type(users))
+
+            for u in users:
+                ls_users.append({"user_id": u.id, "user_name": u.user_name})
+
+            return Response({"success": True, "users": ls_users})
+
+        is_member = Room.objects.filter(id = room_id).get().users.filter(id = user_id).exists()
+
+        return Response({"success": True, "is_member": is_member})
+
 
     def delete(self, request):
-        pass
+        user_id = request.data["user_id"]
+        room_id = request.data["room_id"]
+        user = None
+        room = None
 
-    def put(self, request):
-        pass
+        if user_id == None or room_id == None:
+            return Response({"success": False, "message": "Invalid request!"})
+
+        try:
+            user = User.objects.filter(id=user_id).get()
+        except:
+            return Response({"success": False, "message": "User doesn't exist!"})
+
+        try:
+            room = Room.objects.filter(id=room_id).get()
+        except:
+            return Response({"success": False, "message": "Room doesn't exist!"})
+
+        try:
+            if not Room.objects.filter(id = room_id).get().users.filter(id = user_id).exists():
+                return Response({"success": True, "message": "User already not in room"})
+            user = User.objects.filter(id=user_id).get()
+            room = Room.objects.filter(id=room_id).get()
+            room.users.remove(user)
+        except:
+            return Response({"success": False, "message": "Unable to remove user from room!"})
+
+        return Response({"success": True, "message": "User removed from room"})

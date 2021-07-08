@@ -10,16 +10,10 @@ class User(models.Model):
 
         return pw == self.password
 
-
+#article
 # many to many relationship
 class Room(models.Model):
 
     name = models.CharField(max_length=100)
     private = models.BooleanField(default=False)
     users = models.ManyToManyField(User)
-
-
-class SuperRelation(models.Model):
-
-    user = models.OneToOneField(User, on_delete=models.DO_NOTHING)
-    room = models.OneToOneField(Room, on_delete=models.DO_NOTHING)
