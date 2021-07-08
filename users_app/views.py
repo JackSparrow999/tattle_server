@@ -171,3 +171,18 @@ class SuperUsersAPI(APIView):
 
     def put(self, request):
         pass
+
+
+class AddUsersToRoomAPI(APIView):
+
+    def post(self, request):
+        pass
+
+    def get(self, request):
+        pass
+
+    def delete(self, request):
+        pass
+
+    def put(self, request):
+        pass
