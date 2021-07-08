@@ -1,4 +1,5 @@
-tattle/__pycache__*c
+tattle/__pycache__*
+users_app/migrations*
 .idea/workspace.xml
 
 .idea/vcs.xml
