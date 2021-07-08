@@ -19,7 +19,3 @@ class Room(models.Model):
     private = models.BooleanField(default=False)
     admins = models.ManyToManyField(User)
     users = models.ManyToManyField(User)
-
-    def verify_access_token(self, token):
-
-        return token == self.access_token
