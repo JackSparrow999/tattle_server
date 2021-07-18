@@ -266,3 +266,18 @@ class AddUsersToRoomAPI(APIView):
             return Response({"success": False, "message": "Unable to remove user from room!"})
 
         return Response({"success": True, "message": "User removed from room"})
+
+
+class Login(APIView):
+
+    def post(self, request):
+
+        user_id = request.data["user_id"]
+        password = request.data["password"]
+
+        if user_id != None:
+            users_from_db = User.objects.filter(pk=user_id)
+            for u in users_from_db:
+                return Response({"success": True, "logged_in": u.password == password})
+        else:
+            return Response({"success": False, "logged_in": False})
