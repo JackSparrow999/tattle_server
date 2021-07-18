@@ -1,1 +1,7 @@
-tattle/__pycache__
+db.sqlite3
+tattle/__pycache__*
+users_app/migrations*
+.idea/workspace.xml
+.idea/vcs.xml
+users_app/__pycache__/
+*__pycache__*
